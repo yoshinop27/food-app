@@ -1,12 +1,13 @@
 import { Box, Typography, Slider, Autocomplete, TextField } from "@mui/material";
 import { foodTypeOptions } from "../util/food-types";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { DistanceContext, PriceProvider, TypeContext } from "../contexts/contexts";
 
 const Header = () => {
 
-  const [price, setPrice] = useState(50);
-  const [distance, setDistance] = useState(20);
-  const [type, setType] = useState();
+  const [price, setPrice] = useContext(PriceProvider);
+  const [distance, setDistance] = useContext(DistanceContext);
+  const [type, setType] = useContext(TypeContext);
 
   const handleChangePrice = (event, newValue) => {
     setPrice(newValue);
