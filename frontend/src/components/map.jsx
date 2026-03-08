@@ -3,9 +3,7 @@ import { useState } from 'react';
 import { APIProvider, Marker, Map } from '@vis.gl/react-google-maps';
 import { useGeolocated } from 'react-geolocated';
 
-const MapComponent = () => {
-
-  // const [selectedPlace, setSelectedPlace] = useState(null);
+const MapComponent = async (distance, price, type) => {
 
   const { coords } = useGeolocated({
     positionOptions: {
