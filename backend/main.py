@@ -5,6 +5,9 @@ from pydantic import BaseModel
 from typing import List, Any
 import os
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Coords(BaseModel):
     latitude: float
@@ -28,26 +31,20 @@ app.add_middleware(
 )
 
 # Initial Run for the places API
-@app.post("/resturaunts", response_model=RestaurantsResponse)
+@app.post("/restaurants", response_model=RestaurantsResponse)
 def get_restaurants(coords: Coords):
-    url = 'https://places.googleapis.com/v1/places:searchNearby'
-    payload = { 
-        "includedTypes": ["restaurant"],
-        "maxResultCount": 10,
-        "locationRestriction": {
-            "circle": {
-                "center": {"latitude": coords.latitude, "longitude": coords.longitude},
-                "radius": 50.0
-            }
-        }
+    api_key = os.getenv("GOOGLE_MAPS_API_KEY") or os.getenv("GOOGLE_MAPS_API")
+
+    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+    params = {
+        "key": api_key,
+        "location": f"{coords.latitude},{coords.longitude}",
+        "radius": 1000,
+        "type": "restaurant",
     }
-    headers = {
-        "Content-Type": 'application/json',
-        "X-Goog-Api-Key": os.getenv("GOOGLE_MAPS_API"),
-        "X-Goog-FieldMask": 'places.displayName,places.formattedAddress,places.location,places.id'
-    }
+    
     try:
-        resp = requests.post(url, json=payload, headers=headers, timeout=10)
+        resp = requests.get(url, params=params, timeout=10)
         resp.raise_for_status()
         data = resp.json()
     except requests.Timeout:
@@ -58,11 +55,18 @@ def get_restaurants(coords: Coords):
         raise HTTPException(status_code=502, detail=f"Network error: {e}")
     except ValueError:
         raise HTTPException(status_code=502, detail="Invalid JSON from Places API")
+
+    if data.get("status") not in {"OK", "ZERO_RESULTS"}:
+        error_message = data.get("error_message", "Unknown Places API error")
+        raise HTTPException(
+            status_code=502,
+            detail=f"Places API returned {data.get('status')}: {error_message}",
+        )
     
-    places = data.get("places")
-    if not isinstance(places, list):
+    results = data.get("results")
+    if not isinstance(results, list):
         raise HTTPException(status_code=502, detail="Invalid Places API response format")
-    return {"places": places}
+    return {"places": results}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
