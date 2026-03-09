@@ -2,7 +2,7 @@ import React from 'react';
 import { useContext, useEffect, useState } from 'react';
 import { APIProvider, Marker, Map } from '@vis.gl/react-google-maps';
 import { useGeolocated } from 'react-geolocated';
-import { PriceContext, DistanceContext, TypeContext } from '../contexts/contexts';
+import { PriceContext, DistanceContext, TypeContext, SubmitContext } from '../contexts/contexts';
 import api from '../api'
 
 const MapComponent = () => {
@@ -10,9 +10,10 @@ const MapComponent = () => {
   const {price, setPrice} = useContext(PriceContext);
   const {distance, setDistance} = useContext(DistanceContext);
   const {type, setType} = useContext(TypeContext);
+  const {submitted, setSubmitted} = useContext(SubmitContext);
 
   const [restaurants, setRestaurants] = useState({ places: [] });
-
+  
   // Retrieve user coordinates 
   const { coords } = useGeolocated({
     positionOptions: {
@@ -24,16 +25,17 @@ const MapComponent = () => {
   // Run on intiial load
   useEffect(() => {
     if (!coords) return;
+    // Fetch Restaurant data
     const fetchRestaurants = async () => {
-      try {
+    try {
       const res = await api.post('/restaurants', {latitude: coords.latitude, longitude: coords.longitude})
       setRestaurants(res.data)
       } catch (error) {
         console.error(error.response?.status)
       }
     }
-    fetchRestaurants();
-  }, [coords])
+    fetchRestaurants()
+  }, [coords, distance, price, type, submitted])
 
   return (
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API}>

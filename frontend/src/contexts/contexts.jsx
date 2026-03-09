@@ -32,3 +32,14 @@ export const TypeProvider = ({ children }) => {
         </TypeContext.Provider>
     )
 }
+
+// Type context and type provider
+export const SubmitContext = createContext();
+export const SubmitProvider = ({ children }) => {
+    const [submitted, setSubmitted] = useState()
+    return (
+        <SubmitContext.Provider value={{ submitted, setSubmitted }}>
+            {children}
+        </SubmitContext.Provider>
+    )
+}
