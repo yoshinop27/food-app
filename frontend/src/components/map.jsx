@@ -35,7 +35,7 @@ const MapComponent = () => {
       }
     }
     fetchRestaurants()
-  }, [coords, distance, price, type, submitted])
+  }, [submitted])
 
   return (
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API}>

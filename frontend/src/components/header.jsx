@@ -5,9 +5,11 @@ import { DistanceContext, PriceContext, TypeContext } from "../contexts/contexts
 
 const Header = ({coords}) => {
 
+  // Contexts
   const {price, setPrice} = useContext(PriceContext);
   const {distance, setDistance} = useContext(DistanceContext);
   const {type, setType} = useContext(TypeContext);
+  const {submitted, setSubmitted} = useContext(SubmitContext);
 
   // Setter Functions
   const handleChangePrice = (event, newValue) => {
@@ -18,6 +20,9 @@ const Header = ({coords}) => {
   }
   const handleChangeType = (event, newValue) => {
     setType(newValue);
+  }
+  const handleSubmit = () => {
+    setSubmitted(True)
   }
 
   return (
@@ -37,7 +42,7 @@ const Header = ({coords}) => {
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
             <Autocomplete value={type} onChange={handleChangeType} options={foodTypeOptions} sx={{ width: 240, maxWidth: "45vw" }} renderInput={(params) => <TextField {...params} label="Food Type" />} />
         </Box>
-        <Button variant='contained' sx={{alignItems: 'bottom'}}> Submit </Button>
+        <Button variant='contained' sx={{alignItems: 'bottom'}} onClick={handleSubmit}> Submit </Button>
     </Box>
   )
 };

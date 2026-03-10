@@ -39,7 +39,7 @@ def get_restaurants(coords: Coords):
     params = {
         "key": api_key,
         "location": f"{coords.latitude},{coords.longitude}",
-        "radius": 1000,
+        "radius": 5000,
         "type": "restaurant",
     }
     
