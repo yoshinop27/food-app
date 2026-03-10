@@ -9,9 +9,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-class Coords(BaseModel):
+class Data(BaseModel):
     latitude: float
     longitude: float
+    radius: float
 
 class RestaurantsResponse(BaseModel):
     places: List[dict[str, Any]]
@@ -32,14 +33,14 @@ app.add_middleware(
 
 # Initial Run for the places API
 @app.post("/restaurants", response_model=RestaurantsResponse)
-def get_restaurants(coords: Coords):
+def get_restaurants(filterData: Data):
     api_key = os.getenv("GOOGLE_MAPS_API_KEY") or os.getenv("GOOGLE_MAPS_API")
 
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     params = {
         "key": api_key,
-        "location": f"{coords.latitude},{coords.longitude}",
-        "radius": 5000,
+        "location": f"{filterData.latitude},{filterData.longitude}",
+        "radius": filterData.radius,
         "type": "restaurant",
     }
     

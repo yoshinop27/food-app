@@ -1,7 +1,7 @@
 import { Box, Typography, Slider, Autocomplete, TextField, Button } from "@mui/material";
 import { foodTypeOptions } from "../util/food-types";
 import { useContext } from 'react';
-import { DistanceContext, PriceContext, TypeContext } from "../contexts/contexts";
+import { DistanceContext, PriceContext, TypeContext, SubmitContext } from "../contexts/contexts";
 
 const Header = ({coords}) => {
 
@@ -22,7 +22,7 @@ const Header = ({coords}) => {
     setType(newValue);
   }
   const handleSubmit = () => {
-    setSubmitted(True)
+    setSubmitted(true)
   }
 
   return (

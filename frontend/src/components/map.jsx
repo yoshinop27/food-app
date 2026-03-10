@@ -22,20 +22,28 @@ const MapComponent = () => {
     userDecisionTimeout: 5000,
   });
 
-  // Run on intiial load
+  // Fetch only after the user submits and coordinates are available
   useEffect(() => {
-    if (!coords) return;
-    // Fetch Restaurant data
+    if (!submitted || !coords) return;
+
     const fetchRestaurants = async () => {
-    try {
-      const res = await api.post('/restaurants', {latitude: coords.latitude, longitude: coords.longitude})
-      setRestaurants(res.data)
+      try {
+        const res = await api.post('/restaurants', {
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+          radius: distance,
+        });
+        console.log(res.data);
+        setRestaurants(res.data);
       } catch (error) {
-        console.error(error.response?.status)
+        console.error(error.response?.status);
+      } finally {
+        setSubmitted(false);
       }
-    }
-    fetchRestaurants()
-  }, [submitted])
+    };
+
+    fetchRestaurants();
+  }, [submitted, coords, setSubmitted]);
 
   return (
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API}>
