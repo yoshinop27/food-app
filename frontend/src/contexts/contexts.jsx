@@ -14,7 +14,7 @@ export const DistanceProvider = ({ children }) => {
 // Price context and price provider
 export const PriceContext = createContext();
 export const PriceProvider = ({ children }) => {
-    const [price, setPrice] = useState(50)
+    const [price, setPrice] = useState(3)
     return (
         <PriceContext.Provider value={{ price, setPrice }}>
             {children}

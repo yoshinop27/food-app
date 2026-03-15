@@ -6,42 +6,42 @@ from typing import List, Any
 import os
 import requests
 from dotenv import load_dotenv
+from utils.helpers import priceLevel
 
 load_dotenv()
 
 class Data(BaseModel):
     latitude: float
     longitude: float
-    radius: float
+    radius: float = 5
+    maxprice: float
 
 class RestaurantsResponse(BaseModel):
     places: List[dict[str, Any]]
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:5173"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=['*'],
-    allow_headers=['*'],
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Initial Run for the places API
 @app.post("/restaurants", response_model=RestaurantsResponse)
-def get_restaurants(filterData: Data):
+def get_restaurants(filterData: Data):  # Ensure the parameter name matches
     api_key = os.getenv("GOOGLE_MAPS_API_KEY") or os.getenv("GOOGLE_MAPS_API")
-
+    maxPrice = filterData.maxprice / 25  
+    print(maxPrice)
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     params = {
         "key": api_key,
         "location": f"{filterData.latitude},{filterData.longitude}",
         "radius": filterData.radius,
-        "type": "restaurant",
+        "minprice": 0,
+        "maxprice": maxPrice,
     }
     
     try:

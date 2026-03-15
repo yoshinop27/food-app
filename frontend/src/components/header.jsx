@@ -1,7 +1,9 @@
 import { Box, Typography, Slider, Autocomplete, TextField, Button } from "@mui/material";
 import { foodTypeOptions } from "../util/food-types";
+import { priceTypes } from "../util/price-types";
 import { useContext } from 'react';
 import { DistanceContext, PriceContext, TypeContext, SubmitContext } from "../contexts/contexts";
+import { priceToDollar } from "../util/helpers";
 
 const Header = ({coords}) => {
 
@@ -35,8 +37,8 @@ const Header = ({coords}) => {
         </Box>
     
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-            <Typography variant="h6" sx={{ width: "100%", textAlign: "left" }}>Price ($): {price} </Typography>
-            <Slider defaultValue={price} onChange={handleChangePrice} sx={{ width: 240, maxWidth: "45vw" }} />
+            <Typography variant="h6" sx={{ width: "100%", textAlign: "left" }}>{priceToDollar(price)}</Typography>
+            <Slider defaultValue={price} step="25" aria-label="Custom marks" onChange={handleChangePrice} sx={{ width: 240, maxWidth: "45vw" }} />
         </Box>
 
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>

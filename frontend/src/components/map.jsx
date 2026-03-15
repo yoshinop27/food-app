@@ -1,8 +1,9 @@
 import React from 'react';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { APIProvider, Marker, Map } from '@vis.gl/react-google-maps';
 import { useGeolocated } from 'react-geolocated';
 import { PriceContext, DistanceContext, TypeContext, SubmitContext } from '../contexts/contexts';
+import { milesToMeters } from '../util/helpers';
 import api from '../api'
 
 const MapComponent = () => {
@@ -11,6 +12,7 @@ const MapComponent = () => {
   const {distance, setDistance} = useContext(DistanceContext);
   const {type, setType} = useContext(TypeContext);
   const {submitted, setSubmitted} = useContext(SubmitContext);
+  const hasFetchedOnMount = useRef(false);
 
   const [restaurants, setRestaurants] = useState({ places: [] });
   
@@ -22,35 +24,44 @@ const MapComponent = () => {
     userDecisionTimeout: 5000,
   });
 
-  // Fetch only after the user submits and coordinates are available
+  // Fetch once after coordinates are available, then on submit
   useEffect(() => {
-    if (!submitted || !coords) return;
+    if (!coords) return;
+    if (hasFetchedOnMount.current && !submitted) return;
+
+    // convert miles from UI to meters for backend
+    const meters = milesToMeters(distance);
 
     const fetchRestaurants = async () => {
       try {
         const res = await api.post('/restaurants', {
           latitude: coords.latitude,
           longitude: coords.longitude,
-          radius: distance,
+          radius: meters,
+          maxprice: price,
         });
-        console.log(res.data);
         setRestaurants(res.data);
       } catch (error) {
-        console.error(error.response?.status);
+        console.error('Fetch restaurants failed', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message,
+        });
       } finally {
-        setSubmitted(false);
+        hasFetchedOnMount.current = true;
+        if (submitted) setSubmitted(false);
       }
     };
 
     fetchRestaurants();
-  }, [submitted, coords, setSubmitted]);
+  }, [submitted, coords]);
 
   return (
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API}>
       <Map
         style={{ width: '100%', height: '100%' }}
-        center={coords ? { lat: coords.latitude, lng: coords.longitude } : { lat: 0, lng: 0 }}
-        defaultZoom={18}
+        defaultCenter={coords ? { lat: coords.latitude, lng: coords.longitude } : { lat: 0, lng: 0 }}
+        defaultZoom={13}
         gestureHandling="greedy"
         disableDefaultUI
       >
